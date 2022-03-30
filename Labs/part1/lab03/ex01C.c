@@ -12,6 +12,7 @@
 #define STR_SIZE 17
 
 void upper_string(char *str,int lenght);
+int max(int n1,int n2);
 
 
 int main(int argc,char *argv[]){
@@ -19,7 +20,6 @@ int main(int argc,char *argv[]){
 	int fd2[2];
 	pid_t pid1,pid2;
 	char *string;
-	char read_string[STR_SIZE];
 	int n,j,lenght;
 	
 	
@@ -44,7 +44,7 @@ int main(int argc,char *argv[]){
 			for(j=0;j<lenght-1;j++)
 				string[j]=(rand_r(&seed1) %26)+ 'a';
 			string[j]='\0';
-			//printf("p1 generates %s\n",string);
+			printf("p1 generates %s\n",string);
 			//write lenght on the pipe
 			if(write(fd1[1],&lenght,sizeof(int))<=0){
 				printf("Erron in writing pipe1\n");
@@ -87,7 +87,7 @@ int main(int argc,char *argv[]){
 			for(j=0;j<lenght-1;j++)
 				string[j]=(rand_r(&seed2) %26)+ 'a';
 			string[j]='\0';
-			//fprintf(stdout,"p2 generates %s\n",string);	
+			fprintf(stdout,"p2 generates %s\n",string);	
 			if(write(fd2[1],&lenght,sizeof(int))<=0){
 				printf("Erron in writing pipe2\n");
 				exit(1);
@@ -102,20 +102,75 @@ int main(int argc,char *argv[]){
 	}
 	//Father
 	close(fd2[1]);
+	fd_set readfds;
 	
-	for(int i=0;i<STR_NUM;i++){
+	FD_ZERO(&readfds);
+	FD_SET(fd1[0],&readfds);
+	FD_SET(fd2[0],&readfds);
+	struct timeval tvptr;
+	
+	tvptr.tv_sec=2;
+	tvptr.tv_usec=2000;
+	int ret_select,num_read=STR_NUM*2,done=0,strl,l;
+	int to_read1=STR_NUM,to_read2=STR_NUM;
+	char read_string1[STR_SIZE];
+	char read_string2[STR_SIZE];
+
+	while(num_read>0){
 		//read lenght 
-		read(fd1[0],&lenght,sizeof(int));
-		read(fd1[0],read_string,lenght);
-		upper_string(read_string,lenght);
-		printf("i=%d child1 %s\n",i,read_string);
-		
-		read(fd2[0],&lenght,sizeof(int));
-		read(fd2[0],read_string,lenght);
-		upper_string(read_string,lenght);
-		printf("i=%d, child2 %s\n",i,read_string);
+		if((ret_select=select(max(fd1[0],fd2[0])+1,&readfds,NULL,NULL,&tvptr))==-1){
+			//error
+			fprintf(stderr,"Error in select\n");
+			exit(1);
+		}else if(ret_select==0){
+			//no one is ready
+			//set all the flag again
+			FD_SET(fd1[0],&readfds);
+			FD_SET(fd2[0],&readfds);
+		}else{
+			
+			//someone is ready
+			if(FD_ISSET(fd1[0],&readfds) && to_read1>0){
+				//fd1 is ready, read
+				n=read(fd1[0],&l,sizeof(int));
+				if(n>0){
+					sleep(1);
+					strl=read(fd1[0],read_string1,l);
+					if(strl>0){
+						upper_string(read_string1,l);
+						printf("child1 %s\n",read_string1);
+						num_read--;
+						done++;
+						to_read1--;
+					}
+				}
+				//set again the flag
+				FD_SET(fd1[0],&readfds);
+				FD_SET(fd2[0],&readfds);
+
+			}else if(FD_ISSET(fd2[0],&readfds) && to_read2>0){
+				n=read(fd2[0],&l,sizeof(int));
+				if(n>0){
+					sleep(1);
+					strl=read(fd2[0],read_string2,l);
+					if(strl>0){
+						upper_string(read_string2,l);
+						printf("child2 %s\n",read_string2);
+						num_read--;
+						done++;
+						to_read2--;
+					}
+				}
+				//set again the flag
+				FD_SET(fd1[0],&readfds);
+				FD_SET(fd2[0],&readfds);
+			}
+		}
+
 	}
-	
+	fprintf(stdout,"strings written: %d\n",done);
+	//clear all the flags
+	FD_ZERO(&readfds);
 	wait(0);
 	wait(0);
 	close(fd1[0]);
@@ -125,7 +180,17 @@ int main(int argc,char *argv[]){
 
 
 void upper_string(char *str,int lenght){
-	for(int i=0;i<lenght;i++){
-		str[i]=toupper(str[i]);
+	int i;
+	for(i=0;i<lenght;i++){
+		str[i]=str[i] + ('A'-'a');
+		//printf("%c",str[i]);
 	}
+	str[lenght-1]='\0';
+	//printf("\n");
+}
+
+int max(int n1,int n2){
+	if(n1>n2)
+		return n1;
+	return n2;
 }

@@ -153,7 +153,7 @@ void upper_string(char *str,int lenght){
 		str[i]=str[i] + ('A'-'a');
 		printf("%c",str[i]);
 	}
-	str[lenght]='\0';
+	str[lenght-1]='\0';
 	printf("\n");
 }
 

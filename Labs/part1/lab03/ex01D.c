@@ -133,7 +133,7 @@ int main(int argc,char *argv[]){
 	//Father
 	//close(fd2[1]);
 
-    int num_read=STR_NUM,strl,l;
+    int num_read=STR_NUM;
 	
     
     //AIO

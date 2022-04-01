@@ -23,17 +23,18 @@ typedef struct buffer{
 int done=0;
 struct buffer buf1;
 struct buffer buf2;
+int childN=0;
 
 void manager(int sig){
 	if(sig==SIGUSR1){
-		printf("Received SIGUSR1\n");
-		upper_string(buf1.string,buf1.length);
-		printf("child1 %d %s\n",buf1.length,buf1.string);
-		done++;
+		printf("Received SIGUSR1, length read\n");
+		//upper_string(buf1.string,buf1.length);
+		//printf("child1 %d %s\n",buf1.length,buf1.string);
+		//done++;
 	}else if(sig==SIGUSR2){
-		printf("Received SIGUSR2\n");
+		printf("Received SIGUSR2, string read\n");
 		upper_string(buf1.string,buf1.length);
-		printf("child2 %d %s\n",buf1.length,buf1.string);
+		printf("child%d %d %s\n",childN,buf1.length,buf1.string);
 		done++;
 	}
 }
@@ -123,8 +124,6 @@ int main(int argc,char *argv[]){
 				printf("Error writing in pipe2\n");
 				exit(1);
 			}
-
-			printf("p2 writes %s\n",string);
 			free(string);
 		}
 		exit(1); //Child 2 exit at the end of its execution
@@ -145,29 +144,29 @@ int main(int argc,char *argv[]){
     aiostruct2.aio_fildes=fd2[0];
 
 	struct sigevent sigev1;
-	struct sigevent sigev2;
 
 	sigev1.sigev_signo=SIGUSR1;
 	
-	sigev2.sigev_signo=SIGUSR2;
 
 	aiostruct1.aio_sigevent=sigev1;	
-	aiostruct2.aio_sigevent=sigev2;
-
+	
+	childN=1;
 	while(num_read>0){
 		//read the number
 		aiostruct1.aio_buf=&buf1.length;
 		aiostruct1.aio_nbytes=sizeof(int);
-		//when I read the length I disable the signal
-		sigev1.sigev_notify=SIGEV_NONE;
+		//when I read the length I want sigusr1
+		sigev1.sigev_notify=SIGEV_SIGNAL;
+		sigev1.sigev_signo=SIGUSR1;
 		aiostruct1.aio_sigevent=sigev1;	
 	
 
 		if(aio_read(&aiostruct1)==-1){
 			printf("ERROR IN AIO_READ\n");
 		}
-		sleep(2);
+		pause();
 		sigev1.sigev_notify=SIGEV_SIGNAL;
+		sigev1.sigev_signo=SIGUSR2;
 		aiostruct1.aio_sigevent=sigev1;	
 
 		aiostruct1.aio_buf=&buf1.string;
@@ -175,12 +174,41 @@ int main(int argc,char *argv[]){
 		if(aio_read(&aiostruct1)==-1){
 			printf("ERROR IN AIO_READ\n");
 		}
-		sleep(1);
+		pause();
 		num_read--;
 	}
 	num_read=STR_NUM;
-	sleep(2);
+	
+	childN=2;
 	aiostruct1.aio_fildes=fd2[0];
+
+		while(num_read>0){
+		//read the number
+		aiostruct1.aio_buf=&buf1.length;
+		aiostruct1.aio_nbytes=sizeof(int);
+		//when I read the length I want sigusr1
+		sigev1.sigev_notify=SIGEV_SIGNAL;
+		sigev1.sigev_signo=SIGUSR1;
+		aiostruct1.aio_sigevent=sigev1;	
+	
+
+		if(aio_read(&aiostruct1)==-1){
+			printf("ERROR IN AIO_READ\n");
+		}
+		pause();
+		sigev1.sigev_notify=SIGEV_SIGNAL;
+		sigev1.sigev_signo=SIGUSR2;
+		aiostruct1.aio_sigevent=sigev1;	
+
+		aiostruct1.aio_buf=&buf1.string;
+		aiostruct1.aio_nbytes=buf1.length*sizeof(char);
+		if(aio_read(&aiostruct1)==-1){
+			printf("ERROR IN AIO_READ\n");
+		}
+		pause();
+		num_read--;
+	}
+/*	aiostruct1.aio_fildes=fd2[0];
 	sigev1.sigev_signo=SIGUSR2;
 	sigev1.sigev_notify=SIGEV_SIGNAL;
 	aiostruct1.aio_sigevent=sigev1;	
@@ -206,10 +234,10 @@ int main(int argc,char *argv[]){
 		if(aio_read(&aiostruct1)==-1){
 			printf("ERROR IN AIO_READ\n");
 		}
-		sleep(1);
+		pause();
 		num_read--;
 
-	}
+	}*/
 	fprintf(stdout,"strings written: %d\n",done); 
 
 	wait(0);

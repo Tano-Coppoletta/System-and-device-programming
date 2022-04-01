@@ -162,7 +162,7 @@ int main(int argc,char *argv[]){
 	
 
 		if(aio_read(&aiostruct1)==-1){
-			printf("ERROR IN AIO_READ\n");
+			printf("ERROR IN AIO_READ length1\n");
 		}
 		pause();
 		sigev1.sigev_notify=SIGEV_SIGNAL;
@@ -172,7 +172,7 @@ int main(int argc,char *argv[]){
 		aiostruct1.aio_buf=&buf1.string;
 		aiostruct1.aio_nbytes=buf1.length*sizeof(char);
 		if(aio_read(&aiostruct1)==-1){
-			printf("ERROR IN AIO_READ\n");
+			printf("ERROR IN AIO_READ string1\n");
 		}
 		pause();
 		num_read--;
@@ -193,51 +193,24 @@ int main(int argc,char *argv[]){
 	
 
 		if(aio_read(&aiostruct1)==-1){
-			printf("ERROR IN AIO_READ\n");
+			printf("ERROR IN AIO_READ length2\n");
 		}
+		//Wait for the AIO to be completed
 		pause();
 		sigev1.sigev_notify=SIGEV_SIGNAL;
+		//when I read the string I want to receive sigusr2
 		sigev1.sigev_signo=SIGUSR2;
 		aiostruct1.aio_sigevent=sigev1;	
 
 		aiostruct1.aio_buf=&buf1.string;
 		aiostruct1.aio_nbytes=buf1.length*sizeof(char);
 		if(aio_read(&aiostruct1)==-1){
-			printf("ERROR IN AIO_READ\n");
+			printf("ERROR IN AIO_READ string2\n");
 		}
 		pause();
 		num_read--;
 	}
-/*	aiostruct1.aio_fildes=fd2[0];
-	sigev1.sigev_signo=SIGUSR2;
-	sigev1.sigev_notify=SIGEV_SIGNAL;
-	aiostruct1.aio_sigevent=sigev1;	
-	while(num_read>0){
-		
-		
-		aiostruct1.aio_buf=&buf1.length;
-		aiostruct1.aio_nbytes=sizeof(int);
-		//when I read the length I disable the signal
-		sigev1.sigev_notify=SIGEV_NONE;
-		aiostruct1.aio_sigevent=sigev1;	
-	
 
-		if(aio_read(&aiostruct1)==-1){
-			printf("ERROR IN AIO_READ\n");
-		}
-		sleep(2);
-		sigev1.sigev_notify=SIGEV_SIGNAL;
-		aiostruct1.aio_sigevent=sigev1;	
-
-		aiostruct1.aio_buf=&buf1.string;
-		aiostruct1.aio_nbytes=buf1.length*sizeof(char);
-		if(aio_read(&aiostruct1)==-1){
-			printf("ERROR IN AIO_READ\n");
-		}
-		pause();
-		num_read--;
-
-	}*/
 	fprintf(stdout,"strings written: %d\n",done); 
 
 	wait(0);

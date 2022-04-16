@@ -75,7 +75,7 @@ v after step 2 :  2  6 12 13 14 15 17 23
                                v[3]=v[1]+v[3], etc., v[n-1]=v[n-3]+v[n-1]
                                (sum of elements at distance 2^1=2)
 v after step 3 :  2  6 12 13 16 21 29 36
-                  Computed as: v[0]=v[0], v[1]=v[1], v[2]=v[2], v[3]=v[4],
+                  Computed as: v[0]=v[0], v[1]=v[1], v[2]=v[2], v[3]=v[3],
                                v[4]=v[0]+v[4], v[5]=v[1]+v[5], etc.,
                                v[n-1]=v[n-5]+v[n-1]
                                (sum of elements at distance 2^2=4)

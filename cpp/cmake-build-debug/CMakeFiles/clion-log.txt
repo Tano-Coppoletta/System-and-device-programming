@@ -1,1 +1,0 @@
-CMakeLists.txt not found in C:\Users\tanoc\CLionProjects\System-and-device-programming\cpp Select CMakeLists.txt

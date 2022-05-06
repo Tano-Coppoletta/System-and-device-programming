@@ -17,8 +17,8 @@
 
 extern int errno;
 
-void P1(key_t keyq1,key_t keyq2,int shmid);
-void P2(key_t keyq1, key_t keyq2,int shmid);
+void P1(int shmid,int msgq_id);
+void P2(int shmid, int msgq_id);
 void upper_string(char *str,int length);
 
 
@@ -31,8 +31,8 @@ int main(int argc, char* argv[]){
     setbuf(stdout, 0);
 
     key_t key;
-    key_t key_queue1,key_queue2;
-    int shmid,msqid,msqid2;
+    key_t key_queue;
+    int shmid,msgq_id;
 
 
 
@@ -43,48 +43,38 @@ int main(int argc, char* argv[]){
         exit(1);
     }
 
-    if((shmid=shmget(key,SHM_SIZE,0644 | IPC_CREAT))==-1){
+    if((shmid=shmget(key,SHM_SIZE,0666 | IPC_CREAT))==-1){
         perror("shmget");
         exit(1);
     }
 
     //generate the key for the msg queue
-    if((key_queue1=ftok("key.txt",5))==-1){
+    if((key_queue=ftok("key.txt",5))==-1){
         perror("ftok keyqueue");
         exit(1);
     }
 
-
-    //second msg queue
-    if((key_queue2=ftok("key.txt",6))==-1){
-        perror("ftok keyqueue");
-        exit(1);        
+    if((msgq_id=msgget(key_queue,0644 | IPC_CREAT))==-1){
+        perror("msgq_id");
+        exit(1);
     }
-
-
 
     if(fork()){
         //P1
-
-        P1(key_queue1,key_queue2,shmid);
-       
-
+        P1(shmid,msgq_id);
     }else{
-
-        P2(key_queue2,key_queue1,shmid);
-
+        P2(shmid, msgq_id);
     }
   
 
 }
 
 
-void P1(key_t keyq1,key_t keyq2,int shmid){
+void P1(int shmid, int msgq_id){
     int i;
     char *string,*data;
     unsigned int seed=1;
-    int msgid1,msgid2;
-    message msg1,msg2;
+    message msg;
 
 
     //attach to the shared memory
@@ -94,17 +84,15 @@ void P1(key_t keyq1,key_t keyq2,int shmid){
         exit(1);
     }
 
-    msgid1=msgget(keyq1,0666 | IPC_CREAT); //create or open the msg queue
-    msgid2=msgget(keyq2, 0666 | IPC_CREAT);
-    
-    msg1.mtype=1;
-    msg2.mtype=1;
+
+//    msg2.mtype=1;
 
     while(1){
+        msg.mtype=1;
 
         int n=rand_r(&seed)%SHM_SIZE;
         //write the size in the message struct
-        msg1.size=n;
+        msg.size=n;
         //allocate string
         string=malloc(n*sizeof(char));
 
@@ -115,7 +103,7 @@ void P1(key_t keyq1,key_t keyq2,int shmid){
         //if n==0 i write 0 and the child knows that he has to terminate
         if(n==0){
             //send the message
-            msgsnd(msgid1,&msg1,sizeof(message),0);
+            msgsnd(msgq_id,(void*)&msg,sizeof(message),0);
             fprintf(stdout,"P1 generates 0 : stopped\n");
             //detach memory
             if(shmdt(data)==-1){
@@ -123,8 +111,7 @@ void P1(key_t keyq1,key_t keyq2,int shmid){
                 exit(1);
             }
             //remove the msg queue
-            msgctl(msgid1,IPC_RMID,NULL);
-            msgctl(msgid2,IPC_RMID,NULL);
+            msgctl(msgq_id,IPC_RMID,NULL);
             return;
         }
 
@@ -148,26 +135,27 @@ void P1(key_t keyq1,key_t keyq2,int shmid){
         strncpy(data,string,SHM_SIZE);
 
         //wake up P2 writing n in the msg
-        msgsnd(msgid1,&msg1,sizeof(message),0);
+        msgsnd(msgq_id,(void*)&msg,sizeof(message),0);
 
+        //msg1.mtype=2;
         //wait that P2 writes
-        msgrcv(msgid2,&msg2,sizeof(message),1,0);
+        msgrcv(msgq_id,(void*)&msg,sizeof(message),2,0);
 
 
-        if(msg2.size==0){
+        if(msg.size==0){
             fprintf(stdout,"P1 receives 0 : STOPPED\n\n");
             if(shmdt(data)==-1){
                 perror("shmdt");
                 exit(1);
             }    
-            msgctl(msgid1,IPC_RMID,NULL);
-            msgctl(msgid2,IPC_RMID,NULL);                    
+            msgctl(msgq_id,IPC_RMID,NULL);
+           // msgctl(msgid2,IPC_RMID,NULL);                    
             return;
         }
 
         fprintf(stdout,"P1 receives: %s\n\n",data);
         //toUpper
-        upper_string(data,msg2.size);
+        upper_string(data,msg.size);
 
         fprintf(stdout,"---P1 convert: %s\n\n",data);
 
@@ -178,18 +166,14 @@ void P1(key_t keyq1,key_t keyq2,int shmid){
         perror("shmdt");
         exit(1);
     }
-    msgctl(msgid1,IPC_RMID,NULL);
-    msgctl(msgid2,IPC_RMID,NULL);    
+    msgctl(msgq_id,IPC_RMID,NULL);   
 }
-void P2(key_t keyq1,key_t keyq2,int shmid){
+void P2(int shmid,int msgq_id){
     int n,i;
     char *string,*data;
     unsigned int seed=1;
-    int msgid1,msgid2;
-    message msg1,msg2;
 
-    msgid1=msgget(keyq1,0666 | IPC_CREAT); //create or open the msg queue
-    msgid2=msgget(keyq2, 0666 | IPC_CREAT);
+    message msg;
 
     //write on the shared memory
     data=shmat(shmid,NULL,0);
@@ -198,29 +182,26 @@ void P2(key_t keyq1,key_t keyq2,int shmid){
         exit(1);
     }
 
-    msg1.mtype=1;
-    msg2.mtype=1;
 
     while(1){
         //P2
         //receive the msg
-        msgrcv(msgid2,&msg2,sizeof(message),1,0);
+        msgrcv(msgq_id,(void*)&msg,sizeof(message),1,0);
         //check if msg2.size==0
-        if(msg2.size==0){
+        if(msg.size==0){
             fprintf(stdout,"P2 receives 0 : STOPPED\n");
             if(shmdt(data)==-1){
                 perror("shmdt");
                 exit(1);
             }
-            msgctl(msgid1,IPC_RMID,NULL);
-            msgctl(msgid2,IPC_RMID,NULL);              
+            msgctl(msgq_id,IPC_RMID,NULL);             
             return;
         }
 
 
         fprintf(stdout,"P2 receives: %s\n\n",data);
         //toUpper
-        upper_string(data,msg2.size);
+        upper_string(data,msg.size);
 
         fprintf(stdout,"---P2 convert: %s\n\n",data);
 
@@ -228,20 +209,19 @@ void P2(key_t keyq1,key_t keyq2,int shmid){
         int n=rand_r(&seed)%SHM_SIZE;
 
         //WRITE n in the msg
-        msg1.size=n;
-
-
+        msg.size=n;
+        msg.mtype=2;
         //if n==0 i write 0 and the child knows that he has to terminate
         if(n==0){
             //send the message
-            msgsnd(msgid1,&msg1,sizeof(message),0);
+            msgsnd(msgq_id,(void*)&msg,sizeof(message),0);
             fprintf(stdout,"P2 receives 0 : STOPPED\n");
             if(shmdt(data)==-1){
                 perror("shmdt");
                 exit(1);
             }
-            msgctl(msgid1,IPC_RMID,NULL);
-            msgctl(msgid2,IPC_RMID,NULL);           
+            msgctl(msgq_id,IPC_RMID,NULL);
+           // msgctl(msgid2,IPC_RMID,NULL);           
             return;
         }
 
@@ -266,7 +246,7 @@ void P2(key_t keyq1,key_t keyq2,int shmid){
         strncpy(data,string,SHM_SIZE);
 
         //wake up P2 writing n in the pipe
-        msgsnd(msgid1,&msg2,sizeof(message),0);
+        msgsnd(msgq_id,(void*)&msg,sizeof(message),0);
         free(string);
 
 
@@ -275,8 +255,7 @@ void P2(key_t keyq1,key_t keyq2,int shmid){
         perror("shmdt");
         exit(1);
     }
-    msgctl(msgid1,IPC_RMID,NULL);
-    msgctl(msgid2,IPC_RMID,NULL);   
+    msgctl(msgq_id,IPC_RMID,NULL);  
 }
 
 void upper_string(char *str,int length){

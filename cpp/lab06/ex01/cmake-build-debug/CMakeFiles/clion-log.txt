@@ -1,0 +1,1 @@
+CMakeLists.txt not found in C:\Users\tanoc\Progetti\System-and-device-programming\cpp\lab06\ex01 Select CMakeLists.txt

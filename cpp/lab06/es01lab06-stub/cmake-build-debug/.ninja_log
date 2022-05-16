@@ -1,0 +1,10 @@
+# ninja log v5
+7	333	6744208321872101	CMakeFiles/es01lab06-stub.dir/StackClass.cpp.obj	c6cff456928bb8bf
+3	408	6744208322617530	CMakeFiles/es01lab06-stub.dir/main.cpp.obj	fe5c7ac327ee913e
+409	517	6744208323675504	es01lab06-stub.exe	8ed58127d0a91d7d
+6	326	6744208842129629	CMakeFiles/es01lab06-stub.dir/StackClass.cpp.obj	c6cff456928bb8bf
+3	412	6744208842994269	CMakeFiles/es01lab06-stub.dir/main.cpp.obj	fe5c7ac327ee913e
+412	525	6744208844100248	es01lab06-stub.exe	8ed58127d0a91d7d
+6	325	6744209234791080	CMakeFiles/es01lab06-stub.dir/StackClass.cpp.obj	c6cff456928bb8bf
+3	392	6744209235552331	CMakeFiles/es01lab06-stub.dir/main.cpp.obj	fe5c7ac327ee913e
+393	487	6744209236338179	es01lab06-stub.exe	8ed58127d0a91d7d

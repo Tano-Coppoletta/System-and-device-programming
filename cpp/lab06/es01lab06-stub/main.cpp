@@ -14,9 +14,8 @@ int main()
     std::cout << myStack;
 
 
-
     // TEST POP AND EXCEPTION
-
+/*
     for(int i=0; i<4; i++){
         try {
             val = myStack.pop();
@@ -26,8 +25,7 @@ int main()
             std::cout << exception.what() << std::endl;
         }
     }
-
-
+*/
 
 //TEST operator+
     StackClass<int> toAdd;
@@ -35,8 +33,8 @@ int main()
     toAdd.push(9);
     toAdd.push(1);
     StackClass<int> concatenation;
-    concatenation = myStack + toAdd;
-    std::cout << concatenation << "end of concatenation\n";
+    concatenation = myStack+toAdd;
+    std::cout << "Concatenation:\n" << concatenation;
 
 
     //test GETASVECTOR
@@ -61,7 +59,7 @@ int main()
 // test REVERSE
     StackClass<int> reversedStack = myStack;
     reversedStack.reverse();
-    std::cout << reversedStack;
+    std::cout << "ReverseStack:\n" << reversedStack;
 
     return 0;
 }

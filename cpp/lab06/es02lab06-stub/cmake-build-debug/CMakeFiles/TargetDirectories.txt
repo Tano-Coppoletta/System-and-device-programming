@@ -1,0 +1,3 @@
+C:/Users/tanoc/Progetti/System-and-device-programming/cpp/lab06/es02lab06-stub/cmake-build-debug/CMakeFiles/es02lab06-stub.dir
+C:/Users/tanoc/Progetti/System-and-device-programming/cpp/lab06/es02lab06-stub/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/tanoc/Progetti/System-and-device-programming/cpp/lab06/es02lab06-stub/cmake-build-debug/CMakeFiles/rebuild_cache.dir

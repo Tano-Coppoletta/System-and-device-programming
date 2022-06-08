@@ -1,0 +1,3 @@
+C:/Users/tanoc/Progetti/System-and-device-programming/cpp/exercise_sync/cmake-build-debug/CMakeFiles/exercise_sync.dir
+C:/Users/tanoc/Progetti/System-and-device-programming/cpp/exercise_sync/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/tanoc/Progetti/System-and-device-programming/cpp/exercise_sync/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,25 @@
+# ninja log v5
+0	694	6757023897136743	CMakeFiles/exercise_sync.dir/main.cpp.obj	346901ecda563cd
+697	870	6757023899021038	exercise_sync.exe	531af0e712f0b3ff
+3	512	6757024436777594	CMakeFiles/exercise_sync.dir/main.cpp.obj	346901ecda563cd
+512	619	6757024437875695	exercise_sync.exe	531af0e712f0b3ff
+2	453	6757024593575167	CMakeFiles/exercise_sync.dir/main.cpp.obj	346901ecda563cd
+453	542	6757024594516915	exercise_sync.exe	531af0e712f0b3ff
+3	435	6757025073891104	CMakeFiles/exercise_sync.dir/main.cpp.obj	346901ecda563cd
+435	521	6757025074676780	exercise_sync.exe	531af0e712f0b3ff
+3	502	6757025791977959	CMakeFiles/exercise_sync.dir/main.cpp.obj	346901ecda563cd
+502	612	6757025793070928	exercise_sync.exe	531af0e712f0b3ff
+3	518	6757028124674394	CMakeFiles/exercise_sync.dir/main.cpp.obj	346901ecda563cd
+518	653	6757028126044285	exercise_sync.exe	531af0e712f0b3ff
+2	415	6757028305507260	CMakeFiles/exercise_sync.dir/main.cpp.obj	346901ecda563cd
+416	499	6757028306293455	exercise_sync.exe	531af0e712f0b3ff
+3	529	6757029383201451	CMakeFiles/exercise_sync.dir/main.cpp.obj	346901ecda563cd
+529	700	6757029384928448	exercise_sync.exe	531af0e712f0b3ff
+3	427	6757029542278883	CMakeFiles/exercise_sync.dir/main.cpp.obj	346901ecda563cd
+427	513	6757029543064491	exercise_sync.exe	531af0e712f0b3ff
+2	430	6757030525716409	CMakeFiles/exercise_sync.dir/main.cpp.obj	346901ecda563cd
+430	517	6757030526502047	exercise_sync.exe	531af0e712f0b3ff
+3	532	6757031716213572	CMakeFiles/exercise_sync.dir/main.cpp.obj	346901ecda563cd
+533	725	6757031718097153	exercise_sync.exe	531af0e712f0b3ff
+2	452	6757031972330503	CMakeFiles/exercise_sync.dir/main.cpp.obj	346901ecda563cd
+452	543	6757031973272248	exercise_sync.exe	531af0e712f0b3ff
